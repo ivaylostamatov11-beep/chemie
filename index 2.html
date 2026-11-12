@@ -1,0 +1,678 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kraftstoff-Präsentation</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: feste 16:9-Bühne (1280x720), die auf jede Bildschirmgröße skaliert wird. Farben codieren Siedebereiche (kalt = Gas, heiß = Rückstand). */
+:root{
+  --bg:#0F1A20; --bg0:#091116; --panel:#16262F; --panel2:#1D313C; --line:#2C4552;
+  --fg:#EEF4F6; --mute:#9BB2BE; --amber:#F2A93B;
+  --gas:#86D8EE; --benzin:#F6D55C; --kero:#F29E4C; --diesel:#E2603A; --heavy:#A8554A;
+  --bio:#6FD0A0; --co2:#B9C4CB; --danger:#F0647A;
+  --p1:#86D8EE; --p2:#F6D55C; --p3:#6FD0A0; --p4:#F29E4C;
+  --display:'Unbounded',system-ui,sans-serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg0);color:var(--fg);font-family:var(--body);display:flex;flex-direction:column;gap:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;overflow:hidden}
+.viewport{flex:1;min-height:0;position:relative;overflow:hidden;touch-action:pan-y}
+.stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;margin:-360px 0 0 -640px;transform:scale(var(--s,.5));transform-origin:center;background:var(--bg);overflow:hidden;border-radius:6px;outline:1px solid var(--line)}
+.slide{position:absolute;inset:0;padding:100px 72px 56px;display:none;--pc:var(--mute)}
+.slide.on{display:block}
+.slide[data-part="1"]{--pc:var(--p1)}.slide[data-part="2"]{--pc:var(--p2)}.slide[data-part="3"]{--pc:var(--p3)}.slide[data-part="4"]{--pc:var(--p4)}
+.hd{position:absolute;left:72px;right:72px;top:34px;display:flex;justify-content:space-between;font:500 15px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.hd b{color:var(--pc);font-weight:500}
+.pg{position:absolute;right:72px;bottom:22px;font:400 14px var(--mono);color:var(--mute)}
+h1{font:700 54px/1.08 var(--display);letter-spacing:-.02em;text-wrap:balance}
+h2{font:700 32px/1.18 var(--display);letter-spacing:-.01em;text-wrap:balance;margin-bottom:26px}
+h3{font:700 19px/1.25 var(--display)}
+p,li{font-size:23px;line-height:1.42}
+ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:14px}
+ul.dot li{padding-left:26px;position:relative}
+ul.dot li::before{content:"";position:absolute;left:0;top:.6em;width:10px;height:10px;border-radius:50%;background:var(--pc)}
+.mono{font-family:var(--mono)}
+.mute{color:var(--mute)}
+sub{font-size:.72em;line-height:0}
+.tag{display:inline-block;font:500 14px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--pc);border:1.5px solid var(--pc);padding:3px 10px;border-radius:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 26px}
+.cols{display:grid;gap:36px}
+.rise{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*90ms + 80ms)}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.who{color:var(--fg)}
+
+/* Titel */
+.band{height:62px;display:flex;align-items:center;padding:0 16px;border-radius:6px;font:500 16px var(--mono);color:#0F1A20;margin-bottom:8px;transform-origin:left;animation:grow .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*140ms + 200ms)}
+@keyframes grow{from{transform:scaleX(.05);opacity:0}to{transform:none;opacity:1}}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;position:absolute;left:72px;right:72px;bottom:60px}
+.chip{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--pc);border-radius:8px;padding:12px 16px}
+.chip small{display:block;font:500 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.chip span.nm{display:block;font-size:22px;font-weight:600;margin-top:4px;outline:none;border-bottom:1.5px dashed var(--line);min-height:30px}
+.chip span.nm:focus{border-bottom-color:var(--pc)}
+
+/* Agenda */
+.ag{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.ag .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px;min-height:430px;border-top:5px solid var(--pc)}
+.ag .num{font:500 46px var(--mono);color:var(--pc);line-height:1}
+.ag li{font-size:19px;line-height:1.35}
+.ag .person{margin-top:auto;font:500 15px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.ag .person .who{display:block;font:600 22px var(--body);letter-spacing:0;text-transform:none;margin-top:2px}
+
+/* Kennzahlen */
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 24px;display:flex;align-items:baseline;gap:20px}
+.stat b{font:700 46px var(--display);color:var(--pc);white-space:nowrap}
+.stat span{font-size:20px;line-height:1.3;color:var(--fg)}
+
+/* Siedepunkt-Balken */
+.bprow{display:grid;grid-template-columns:200px 230px 1fr 96px;align-items:center;gap:18px;height:72px;border-bottom:1px solid var(--line)}
+.bprow .nm{font-size:22px;font-weight:600}.bprow .nm small{display:block;font:400 17px var(--mono);color:var(--mute);font-weight:400}
+.track{position:relative;height:34px}
+.track .zero{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--mute);opacity:.6}
+.track .bar{position:absolute;top:0;height:100%;border-radius:4px;transform-origin:var(--o);animation:growx .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*160ms + 300ms)}
+@keyframes growx{from{transform:scaleX(0)}to{transform:none}}
+.bpval{font:500 24px var(--mono);text-align:right}
+.axis{display:grid;grid-template-columns:200px 230px 1fr 96px;gap:18px;margin-top:6px}
+.axis .ticks{position:relative;height:22px;font:400 14px var(--mono);color:var(--mute)}
+.axis .ticks i{position:absolute;transform:translateX(-50%);font-style:normal}
+.note{margin-top:22px;display:flex;gap:18px;align-items:center;font-size:22px}
+
+/* Kolonne */
+.fr{cursor:pointer;outline:none}
+.fr .hit{fill:transparent;stroke:transparent;transition:fill .2s}
+.fr.sel .hit{fill:rgba(255,255,255,.07)}
+.fr text{transition:opacity .2s}
+.col-svg:has(.fr.sel) .fr:not(.sel) text{opacity:.55}
+.b{animation:rise-b var(--t,4s) linear infinite;animation-delay:var(--dl,0s)}
+@keyframes rise-b{0%{transform:translateY(0);opacity:0}10%{opacity:.95}85%{opacity:.95}100%{transform:translateY(calc(-1*var(--d)));opacity:0}}
+.xo{animation:outp 2.4s ease-out infinite;animation-delay:var(--dl,0s)}
+@keyframes outp{0%{transform:translateX(0);opacity:0}15%{opacity:1}100%{transform:translateX(46px);opacity:0}}
+.drip{animation:drip 2.6s ease-in infinite}
+@keyframes drip{0%{transform:translateY(-8px);opacity:0}20%{opacity:1}100%{transform:translateY(22px);opacity:0}}
+.flow{stroke-dasharray:7 9;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-16}}
+.step{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.step i{font:500 20px var(--mono);font-style:normal;width:44px;height:44px;border-radius:50%;border:2px solid var(--pc);color:var(--pc);display:grid;place-items:center}
+.step p{font-size:20px;line-height:1.38}
+.det{border-left:6px solid var(--c,var(--amber));background:var(--panel);border-radius:0 10px 10px 0;padding:16px 22px;min-height:178px}
+.det h3{color:var(--c,var(--amber));margin-bottom:8px}
+.det dl{display:grid;grid-template-columns:130px 1fr;gap:4px 14px;font-size:19px;line-height:1.35}
+.det dt{color:var(--mute);font:400 16px var(--mono);padding-top:3px}.det dd{margin:0}
+
+/* Vergleichstabelle */
+.cmp{display:grid;grid-template-columns:210px 1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cmp>div{padding:11px 18px;border-bottom:1px solid var(--line);font-size:20px;line-height:1.3;display:flex;align-items:center}
+.cmp>div:nth-last-child(-n+3){border-bottom:0}
+.cmp .h{font:700 22px var(--display);background:var(--panel2)}
+.cmp .l{font:400 16px var(--mono);color:var(--mute);background:var(--panel);text-transform:uppercase;letter-spacing:.05em}
+.cmp .bz{border-left:1px solid var(--line)}
+.cmp .h.bz{color:var(--benzin)}.cmp .h.ds{color:var(--diesel);border-left:1px solid var(--line)}
+.cmp .ds{border-left:1px solid var(--line)}
+.callout{margin-top:20px;font-size:24px;display:flex;gap:16px;align-items:center;padding:16px 24px;background:var(--panel);border-radius:10px;border-left:6px solid var(--pc)}
+
+/* Pipeline */
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:34px;margin-bottom:18px}
+.pipe .st{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;position:relative;min-height:128px}
+.pipe .st:not(:last-child)::after{content:"";position:absolute;right:-27px;top:50%;width:20px;height:20px;border-top:3px solid var(--pc);border-right:3px solid var(--pc);transform:translateY(-50%) rotate(45deg)}
+.pipe .st b{display:block;font:700 18px var(--display);color:var(--pc);margin-bottom:6px}
+.pipe .st span{font-size:18px;line-height:1.3;color:var(--fg)}
+.cL{animation:cL 1s 1.6s cubic-bezier(.3,.7,.2,1) both}.cR{animation:cR 1s 1.6s cubic-bezier(.3,.7,.2,1) both}
+@keyframes cL{to{transform:translate(-30px,-46px)}}@keyframes cR{to{transform:translate(34px,58px)}}
+.cfade{animation:fade .8s 2.5s both}
+.bondx{animation:bondx .5s 1.2s both}
+@keyframes bondx{0%{opacity:1}100%{opacity:0}}
+.flash{animation:flash 1s 1s both;transform-box:fill-box;transform-origin:center}
+@keyframes flash{0%{opacity:0;transform:scale(.4)}40%{opacity:1;transform:scale(1.5)}100%{opacity:0;transform:scale(2.2)}}
+
+/* Reaktions-Animation Biodiesel */
+.tail{animation:tail 1.1s 1.5s cubic-bezier(.3,.7,.2,1) both}
+@keyframes tail{to{transform:translateX(330px)}}
+.meoh{animation:meoh 1.1s 1.5s cubic-bezier(.3,.7,.2,1) both}
+@keyframes meoh{0%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translateX(96px)}}
+.cap{animation:fade .5s 2.4s both}
+.t-before{animation:fadeout .5s 2s both}@keyframes fadeout{to{opacity:0}}
+.t-after{animation:fade .6s 2.4s both}
+.fl{display:flex;flex-direction:column;gap:12px}
+.fl .it{display:grid;grid-template-columns:38px 1fr;gap:14px;align-items:center;font-size:20px;line-height:1.3}
+.fl .it i{width:38px;height:38px;border-radius:50%;background:var(--pc);color:#0F1A20;display:grid;place-items:center;font:500 17px var(--mono);font-style:normal}
+.fl .arr{margin-left:15px;width:8px;height:16px;border-left:3px solid var(--line)}
+
+/* Bioethanol */
+.stn{display:grid;grid-template-columns:repeat(5,1fr);gap:30px}
+.stn .s{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 16px;min-height:236px;position:relative;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.stn .s:not(:last-child)::after{content:"";position:absolute;right:-24px;top:50%;width:16px;height:16px;border-top:3px solid var(--pc);border-right:3px solid var(--pc);transform:translateY(-50%) rotate(45deg)}
+.stn .s b{font:700 16px var(--display);color:var(--pc)}
+.stn .s p{font-size:17.5px;line-height:1.32}
+.stn .s .eq{font:500 17px var(--mono);color:var(--fg);line-height:1.4}
+.bub{position:absolute;bottom:8px;width:10px;height:10px;border-radius:50%;background:var(--co2);opacity:0;animation:bubup 3s linear infinite}
+@keyframes bubup{0%{transform:translateY(0);opacity:0}15%{opacity:.8}100%{transform:translateY(-70px);opacity:0}}
+.mini{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.mini div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;font-size:19px;line-height:1.3}
+.mini b{display:block;font:500 28px var(--mono);color:var(--pc)}
+
+/* Pro/Contra */
+.pc2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.pc2 .panel h3{margin-bottom:14px}
+.pc2 li{font-size:21px;line-height:1.36}
+.pro h3{color:var(--bio)}.con h3{color:var(--danger)}
+.pro li::before{background:var(--bio)!important}.con li::before{background:var(--danger)!important}
+
+/* Verbrennung */
+.burnbox{display:grid;grid-template-columns:1fr 150px 1fr;gap:10px;align-items:stretch}
+.tokbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;height:268px}
+.tk{border-radius:50%;display:grid;place-items:center;font:500 13px var(--mono);color:#0F1A20;transition:opacity .6s,transform .8s cubic-bezier(.5,0,.2,1)}
+.tk.f{width:54px;height:54px;background:var(--amber);font-size:14px}
+.tk.o{width:28px;height:28px;background:#6FA8FF}
+.tk.c{width:34px;height:34px;background:var(--co2)}
+.tk.w{width:30px;height:30px;background:var(--gas)}
+.rt{transition-delay:calc(var(--i)*35ms)}
+.burn .rt{opacity:0;transform:translateX(150px) scale(.2)}
+.pt{opacity:0;transform:scale(.2);transition-delay:calc(var(--i)*35ms + 900ms)}
+.burn .pt{opacity:1;transform:none}
+.mid{display:grid;place-items:center;position:relative}
+.flame{width:70px;height:96px;opacity:.25;transition:opacity .4s}
+.burn .flame{opacity:1;animation:flick .35s ease-in-out infinite alternate}
+@keyframes flick{from{transform:scale(1,.94)}to{transform:scale(1.08,1.04)}}
+.eqn{font:500 27px var(--mono);margin-top:18px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.eqn .a{color:var(--amber)}.eqn .o{color:#6FA8FF}.eqn .c{color:var(--co2)}.eqn .w{color:var(--gas)}
+.btn{font:500 17px var(--body);color:var(--fg);background:var(--panel2);border:1.5px solid var(--line);border-radius:8px;padding:8px 16px;cursor:pointer}
+.btn:hover{border-color:var(--pc)}
+.energy{display:flex;gap:10px;align-items:center;margin-top:16px;font-size:19px;color:var(--mute);flex-wrap:wrap}
+.energy span{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 12px;color:var(--fg)}
+
+/* CO2-Balken */
+.cobar{display:grid;grid-template-columns:140px 1fr;gap:20px;align-items:center;margin-bottom:18px}
+.cobar .tr{height:66px;background:var(--panel);border-radius:8px;position:relative;overflow:hidden}
+.cobar .fill{height:100%;display:flex;align-items:center;padding-left:18px;font:500 30px var(--mono);color:#0F1A20;transform-origin:left;animation:growx 1s cubic-bezier(.2,.7,.2,1) both;animation-delay:.4s}
+.cobar .nm{font:700 22px var(--display)}
+
+/* Kat */
+.pol{display:grid;grid-template-columns:130px 1fr;gap:6px 18px;padding:11px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.pol b{font:500 24px var(--mono);color:var(--danger)}.pol span{font-size:19px;line-height:1.32}
+.kat{animation:fade .6s both}
+.pd{animation:pdrift 4.5s linear infinite;animation-delay:var(--dl)}
+@keyframes pdrift{0%{transform:translateX(0);opacity:0;fill:#F0647A}8%{opacity:1}44%{fill:#F0647A}50%{fill:#F0647A}58%{fill:#B9C4CB}92%{opacity:1}100%{transform:translateX(470px);opacity:0;fill:#B9C4CB}}
+
+/* Kreislauf */
+.loops{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.loops .panel{padding:16px 20px;height:440px;position:relative}
+.loops h3{margin-bottom:6px}
+.loops p{font-size:18px;line-height:1.32;color:var(--mute)}
+
+/* Fazit */
+.fz{display:flex;flex-direction:column;gap:14px}
+.fz .r{display:grid;grid-template-columns:150px 1fr;gap:22px;align-items:center;background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--pc);border-radius:0 10px 10px 0;padding:14px 22px}
+.fz .r small{font:500 14px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);display:block}
+.fz .r b{font-size:20px}
+.fz .r p{font-size:21px;line-height:1.34}
+.src{columns:2;column-gap:40px;font-size:16.5px;line-height:1.35}
+.src li{break-inside:avoid;margin-bottom:9px}
+.src a{color:var(--gas);text-decoration:none;border-bottom:1px solid rgba(134,216,238,.4)}
+.src span{display:block;color:var(--mute);font-size:14.5px}
+
+.orow{display:grid;grid-template-columns:150px 1fr 66px;gap:14px;align-items:center;height:46px}
+.orow span{font-size:20px}.orow b{font:500 22px var(--mono);text-align:right}
+.orow .track{height:24px}
+.notes{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;max-height:34vh;overflow:auto;font-size:18px;line-height:1.55}
+.notes b{display:block;font:500 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+.ov{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ovin{max-width:840px;margin:0 auto;padding-top:env(safe-area-inset-top,0px)}
+.ovin h1{font:700 26px var(--display);margin-bottom:6px}
+.ovin .tools{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 24px}
+.ovin h3{margin:28px 0 4px;padding-top:12px;border-top:3px solid var(--c);color:var(--c)}
+.ovin h4{font:500 14px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:16px}
+.ovin p{font-size:18px;line-height:1.6;margin-top:4px;text-wrap:pretty}
+.zone{position:absolute;top:25%;bottom:0;width:12%;z-index:5;display:none;cursor:pointer}.zone.l{left:0}.zone.r{right:0}
+.hint{position:absolute;right:14px;bottom:10px;z-index:6;font:400 14px var(--mono);color:var(--mute);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 10px;opacity:0;pointer-events:none;transition:opacity .4s}
+.hint.show{opacity:1}
+body.pres{padding-block:0}
+body.pres .bar,body.pres .notes{display:none!important}
+body.pres .zone{display:block}
+/* Steuerleiste */
+.bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;transition:opacity .3s}
+body.fs .bar{opacity:.3}body.fs .bar:hover{opacity:1}
+.nav{font:500 16px var(--body);color:var(--fg);background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:8px 16px;cursor:pointer;min-width:44px}
+.nav:hover,.nav:focus-visible{border-color:var(--amber);outline:none}
+.segs{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center}
+.seg{width:24px;height:12px;border-radius:3px;border:0;background:var(--line);cursor:pointer;padding:0}
+.seg[data-part="1"]{background:color-mix(in srgb,var(--p1) 40%,var(--line))}.seg[data-part="2"]{background:color-mix(in srgb,var(--p2) 40%,var(--line))}
+.seg[data-part="3"]{background:color-mix(in srgb,var(--p3) 40%,var(--line))}.seg[data-part="4"]{background:color-mix(in srgb,var(--p4) 40%,var(--line))}
+.seg.on{outline:2px solid var(--fg);outline-offset:2px}
+.seg:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.ctr{font:400 15px var(--mono);color:var(--mute);min-width:56px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="viewport" id="vp">
+<div class="zone l" id="zl"></div><div class="zone r" id="zr"></div><div class="hint" id="hint">Esc beendet den Präsentationsmodus</div>
+<div class="stage" id="stage">
+
+<!-- 1 TITEL -->
+<section class="slide" data-part="0" data-id="titel">
+  <div class="hd"><span>Chemie · Thema Erdöl</span><span>Benzin &amp; Diesel</span></div>
+  <div style="display:grid;grid-template-columns:1fr 370px;gap:56px;align-items:start">
+    <div>
+      <span class="tag rise" style="--pc:var(--amber);--i:0">Kraftstoffe</span>
+      <h1 class="rise" style="--i:1;margin-top:20px">Woher kommt unser Kraftstoff?</h1>
+      <p class="rise mute" style="--i:2;margin-top:22px;max-width:640px">Benzin und Diesel: aus Erdöl durch fraktionierte Destillation und aus nachwachsenden Rohstoffen. Und was beim Verbrennen passiert.</p>
+    </div>
+    <div style="padding-top:8px" aria-hidden="true">
+      <div class="band" style="--i:0;width:34%;background:var(--gas)">C₁–C₄</div>
+      <div class="band" style="--i:1;width:52%;background:var(--benzin)">C₅–C₁₁</div>
+      <div class="band" style="--i:2;width:68%;background:var(--kero)">C₁₀–C₁₆</div>
+      <div class="band" style="--i:3;width:84%;background:var(--diesel)">C₁₂–C₂₀</div>
+      <div class="band" style="--i:4;width:100%;background:var(--heavy)">C₂₀+</div>
+    </div>
+  </div>
+  <div class="chips">
+    <div class="chip rise" style="--i:3;--pc:var(--p1)"><small>Teil 1 · Erdöl &amp; Destillation</small><span class="nm" contenteditable="true" spellcheck="false" data-p="1"></span></div>
+    <div class="chip rise" style="--i:4;--pc:var(--p2)"><small>Teil 2 · Benzin &amp; Diesel</small><span class="nm" contenteditable="true" spellcheck="false" data-p="2"></span></div>
+    <div class="chip rise" style="--i:5;--pc:var(--p3)"><small>Teil 3 · Kraftstoffe vom Acker</small><span class="nm" contenteditable="true" spellcheck="false" data-p="3"></span></div>
+    <div class="chip rise" style="--i:6;--pc:var(--p4)"><small>Teil 4 · Verbrennung</small><span class="nm" contenteditable="true" spellcheck="false" data-p="4"></span></div>
+  </div>
+  <div class="pg" style="left:72px;right:auto;bottom:24px">Namen anklicken und eintippen</div>
+</section>
+
+<!-- 4 SIEDEPUNKT -->
+<section class="slide" data-part="1" data-id="siede">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <h2 class="rise" style="margin-bottom:12px">Erdöl trennen: Siedepunkt und Kettenlänge</h2>
+  <p class="rise mute" style="--i:1;font-size:20px;margin-bottom:6px">Erdöl besteht aus über 500 Kohlenwasserstoffen mit unterschiedlich langen Ketten.</p>
+  <div id="bprows"></div>
+  <div class="axis"><div></div><div></div><div class="ticks" id="bpticks"></div><div></div></div>
+  <div class="note rise" style="--i:6"><span class="tag" style="--pc:var(--amber)">Warum?</span><span>Zwischen langen Molekülen wirken stärkere Anziehungskräfte. Zum Verdampfen braucht man mehr Energie, also mehr Wärme.</span></div>
+</section>
+
+<!-- 5 KOLONNE -->
+<section class="slide" data-part="1" data-id="kolonne">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <h2 style="margin-bottom:14px">Fraktionierte Destillation</h2>
+  <div class="cols" style="grid-template-columns:640px 1fr;gap:28px">
+    <svg class="col-svg" viewBox="0 0 640 520" width="640" height="520" role="img" aria-label="Destillationskolonne mit fünf Fraktionen">
+      <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86D8EE" stop-opacity=".32"/><stop offset="1" stop-color="#E2603A" stop-opacity=".42"/></linearGradient></defs>
+      <rect x="150" y="6" width="150" height="500" rx="16" fill="url(#cg)" stroke="#2C4552" stroke-width="2"/>
+      <g stroke="#2C4552" stroke-width="2" stroke-dasharray="4 6"><line x1="154" y1="80" x2="296" y2="80"/><line x1="154" y1="175" x2="296" y2="175"/><line x1="154" y1="270" x2="296" y2="270"/><line x1="154" y1="365" x2="296" y2="365"/></g>
+      <text x="140" y="26" text-anchor="end" font-family="IBM Plex Mono" font-size="15" fill="#86D8EE">≈ 20 °C</text>
+      <text x="140" y="508" text-anchor="end" font-family="IBM Plex Mono" font-size="15" fill="#E2603A">≈ 400 °C</text>
+      <rect x="8" y="402" width="76" height="76" rx="8" fill="#16262F" stroke="#F2A93B" stroke-width="2"/>
+      <path d="M46 418c10 12 16 18 16 30a16 16 0 0 1-32 0c0-8 4-12 8-17 2 5 4 6 6 6-2-8 0-13 2-19z" fill="#F2A93B"/>
+      <text x="46" y="496" text-anchor="middle" font-family="IBM Plex Sans" font-size="15" fill="#9BB2BE">Ofen</text>
+      <line class="flow" x1="86" y1="440" x2="148" y2="440" stroke="#F2A93B" stroke-width="4"/>
+      <text x="8" y="392" font-family="IBM Plex Mono" font-size="14" fill="#F2A93B">Rohöl ≈ 350 °C</text>
+      <g id="bubs"></g><g id="frs"></g>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="step"><i>1</i><p><b>Erhitzen.</b> Rohöl läuft durch einen Röhrenofen und verdampft größtenteils.</p></div>
+      <div class="step"><i>2</i><p><b>Aufsteigen.</b> Der Dampf strömt durch die Böden nach oben. Unten ist es heiß, oben kühl.</p></div>
+      <div class="step"><i>3</i><p><b>Kondensieren.</b> Jede Fraktion kondensiert dort, wo es kühler ist als ihr Siedebereich, und wird seitlich abgezogen.</p></div>
+      <div class="det" id="fdet"></div>
+      <p class="mute" style="font-size:15px;line-height:1.3">Anklicken oder mit der Maus darüberfahren. Temperaturen sind Richtwerte und variieren je nach Quelle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 BENZIN VS DIESEL -->
+<section class="slide" data-part="2" data-id="vergleich">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <h2 class="rise" style="margin-bottom:20px">Benzin und Diesel im Vergleich</h2>
+  <div class="cmp rise" style="--i:1">
+    <div class="h"></div><div class="h bz">Benzin</div><div class="h ds">Diesel</div>
+    <div class="l">Fraktion</div><div class="bz">Leichtbenzin / Naphtha, ca. 40–180 °C</div><div class="ds">Mitteldestillat, ca. 180–360 °C</div>
+    <div class="l">Kettenlänge</div><div class="bz">C₅ bis C₁₁</div><div class="ds">etwa C₁₂ bis C₂₀</div>
+    <div class="l">Modellmolekül</div><div class="bz mono">Octan C₈H₁₈</div><div class="ds mono">Hexadecan C₁₆H₃₄</div>
+    <div class="l">Dichte</div><div class="bz">ca. 0,74 kg/l</div><div class="ds">ca. 0,85 kg/l</div>
+    <div class="l">Zündung</div><div class="bz">Zündkerze (Fremdzündung)</div><div class="ds">Selbstzündung durch Verdichtung</div>
+    <div class="l">Kennzahl</div><div class="bz"><span><b>Oktanzahl</b>: Super 95, Super Plus ab 98. Maß für die Klopffestigkeit.</span></div><div class="ds"><span><b>Cetanzahl</b>: mindestens 51, Premium über 60. Maß für die Zündwilligkeit.</span></div>
+  </div>
+  <div class="callout rise" style="--i:3"><span class="tag">Gegensatz</span><span>Benzin soll sich beim Verdichten <b>nicht</b> selbst entzünden. Diesel <b>soll</b> es.</span></div>
+</section>
+
+<!-- OKTAN -->
+<section class="slide" data-part="2" data-id="oktan">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <h2 class="rise" style="margin-bottom:18px">Was bedeutet Oktanzahl?</h2>
+  <div class="cols" style="grid-template-columns:480px 1fr;gap:36px;align-items:start">
+    <svg viewBox="0 0 480 350" width="480" height="350" role="img" aria-label="n-Heptan als gerade Kette, iso-Oktan verzweigt">
+      <g font-family="IBM Plex Sans" font-size="17">
+        <text x="20" y="22" fill="#F0647A" font-weight="600">n-Heptan, gerade Kette, Oktanzahl 0</text>
+        <polyline points="30,85 92,45 154,85 216,45 278,85 340,45 402,85" fill="none" stroke="#F0647A" stroke-width="4" stroke-linejoin="round"/>
+        <g fill="#F0647A"><circle cx="30" cy="85" r="10"/><circle cx="92" cy="45" r="10"/><circle cx="154" cy="85" r="10"/><circle cx="216" cy="45" r="10"/><circle cx="278" cy="85" r="10"/><circle cx="340" cy="45" r="10"/><circle cx="402" cy="85" r="10"/></g>
+        <text x="20" y="122" fill="#9BB2BE" font-family="IBM Plex Mono" font-size="15">C₇H₁₆ · zündet früh, klopft leicht</text>
+        <text x="20" y="160" fill="#F6D55C" font-weight="600">iso-Oktan, verzweigt, Oktanzahl 100</text>
+        <g stroke="#F6D55C" stroke-width="4" stroke-linejoin="round" fill="none"><polyline points="40,310 106,270 172,310 238,270 304,310"/><line x1="106" y1="270" x2="70" y2="215"/><line x1="106" y1="270" x2="150" y2="215"/><line x1="238" y1="270" x2="238" y2="205"/></g>
+        <g fill="#F6D55C"><circle cx="40" cy="310" r="10"/><circle cx="106" cy="270" r="10"/><circle cx="172" cy="310" r="10"/><circle cx="238" cy="270" r="10"/><circle cx="304" cy="310" r="10"/><circle cx="70" cy="215" r="10"/><circle cx="150" cy="215" r="10"/><circle cx="238" cy="205" r="10"/></g>
+        <text x="330" y="236" fill="#9BB2BE" font-family="IBM Plex Mono" font-size="15">C₈H₁₈</text><text x="330" y="256" fill="#9BB2BE" font-family="IBM Plex Mono" font-size="15">klopffest</text>
+      </g>
+    </svg>
+    <div>
+      <div class="panel rise" style="--i:1;padding:14px 22px"><p style="font-size:21px;line-height:1.38"><b>Oktanzahl = Klopffestigkeit.</b> Sie sagt, wie stark man das Gemisch verdichten kann, bevor es von selbst zündet. Super 95 verhält sich wie ein Gemisch aus <b>95 % iso-Oktan</b> und <b>5 % n-Heptan</b>.</p></div>
+      <div style="margin-top:12px">
+        <div class="orow"><span>n-Heptan</span><div class="track"><div class="bar" style="left:0;width:1.2%;background:#F0647A;--o:left;--i:0"></div></div><b>0</b></div>
+        <div class="orow"><span>Super</span><div class="track"><div class="bar" style="left:0;width:86.4%;background:#F6D55C;--o:left;--i:1"></div></div><b>95</b></div>
+        <div class="orow"><span>Super Plus</span><div class="track"><div class="bar" style="left:0;width:89.1%;background:#F6D55C;--o:left;--i:2"></div></div><b>≥ 98</b></div>
+        <div class="orow"><span>iso-Oktan</span><div class="track"><div class="bar" style="left:0;width:90.9%;background:#F2A93B;--o:left;--i:3"></div></div><b>100</b></div>
+        <div class="orow"><span>Ethanol</span><div class="track"><div class="bar" style="left:0;width:94.5%;background:#6FD0A0;--o:left;--i:4"></div></div><b>≈ 104</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="callout rise" style="--i:4;margin-top:14px;padding:12px 22px;font-size:21px"><span class="tag">Merke</span><span><b>Octan</b> ist ein Molekül (C₈H₁₈), die <b>Oktanzahl</b> ist eine Skala. Verzweigte Moleküle klopfen weniger, deshalb baut die Raffinerie beim Reforming Ketten um.</span></div>
+</section>
+
+<!-- 8 BIODIESEL -->
+<section class="slide" data-part="3" data-id="biodiesel">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <h2 class="rise" style="margin-bottom:20px">Biodiesel aus Raps</h2>
+  <div class="cols" style="grid-template-columns:400px 1fr;gap:34px">
+    <div class="fl">
+      <div class="it rise" style="--i:1"><i>1</i><span><b>Raps</b> pressen. Das Saatgut enthält etwa 40 % Öl.</span></div>
+      <div class="arr"></div>
+      <div class="it rise" style="--i:2"><i>2</i><span><b>Rapsöl</b> ist zu zähflüssig für den Motor. Der Rapskuchen wird Futtermittel.</span></div>
+      <div class="arr"></div>
+      <div class="it rise" style="--i:3"><i>3</i><span><b>Umesterung</b> mit Methanol und Katalysator.</span></div>
+      <div class="arr"></div>
+      <div class="it rise" style="--i:4"><i>4</i><span><b>RME</b> (Rapsölmethylester) und das Nebenprodukt <b>Glycerin</b>.</span></div>
+    </div>
+    <div>
+      <svg viewBox="0 0 700 300" width="700" height="300" role="img" aria-label="Umesterung von Rapsöl mit Methanol zu Biodiesel und Glycerin">
+        <g font-family="IBM Plex Mono" font-size="15">
+          <g id="glyc"><rect x="34" y="52" width="10" height="170" rx="5" fill="#9BB2BE"/>
+            <text x="22" y="252" fill="#9BB2BE" class="t-before">Glycerin-Gerüst</text></g>
+          <g class="tail"><rect x="52" y="48" width="210" height="18" rx="9" fill="#6FD0A0"/><rect x="52" y="124" width="210" height="18" rx="9" fill="#6FD0A0"/><rect x="52" y="200" width="210" height="18" rx="9" fill="#6FD0A0"/>
+            <g class="cap"><rect x="26" y="42" width="30" height="30" rx="6" fill="#F6D55C"/><rect x="26" y="118" width="30" height="30" rx="6" fill="#F6D55C"/><rect x="26" y="194" width="30" height="30" rx="6" fill="#F6D55C"/>
+            <text x="41" y="62" text-anchor="middle" fill="#0F1A20" font-size="12">CH₃</text><text x="41" y="138" text-anchor="middle" fill="#0F1A20" font-size="12">CH₃</text><text x="41" y="214" text-anchor="middle" fill="#0F1A20" font-size="12">CH₃</text></g></g>
+          <g class="meoh"><rect x="300" y="40" width="90" height="34" rx="17" fill="#F6D55C"/><rect x="300" y="116" width="90" height="34" rx="17" fill="#F6D55C"/><rect x="300" y="192" width="90" height="34" rx="17" fill="#F6D55C"/>
+            <text x="345" y="63" text-anchor="middle" fill="#0F1A20">CH₃OH</text><text x="345" y="139" text-anchor="middle" fill="#0F1A20">CH₃OH</text><text x="345" y="215" text-anchor="middle" fill="#0F1A20">CH₃OH</text></g>
+          <text x="52" y="30" fill="#6FD0A0" font-size="17" class="t-before">Rapsöl (Triglycerid)</text>
+          <text x="22" y="30" fill="#9BB2BE" font-size="17" class="t-after" opacity="0">Glycerin</text>
+          <text x="400" y="30" fill="#6FD0A0" font-size="17" class="t-after" opacity="0">3 × RME (Biodiesel)</text>
+          <text x="300" y="276" fill="#9BB2BE" font-size="16">Katalysator: NaOH, Methanol im Überschuss</text>
+        </g>
+      </svg>
+      <div class="mini" style="grid-template-columns:1fr 1fr;margin-top:10px">
+        <div class="rise" style="--i:5"><b>98 → 6–8</b>Viskosität in mm²/s bei 20 °C: Rapsöl gegenüber RME</div>
+        <div class="rise" style="--i:6"><b>32,7 MJ/l</b>Heizwert RME, Diesel liegt bei etwa 35,2 MJ/l</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 BIOETHANOL -->
+<section class="slide" data-part="3" data-id="bioethanol">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <h2 class="rise" style="margin-bottom:20px">Bioethanol durch Gärung</h2>
+  <div class="stn">
+    <div class="s rise" style="--i:1"><b>Rohstoff</b><p>Weizen, Mais, Zuckerrübe. Forschung: Stroh und Holz (Zellulose).</p></div>
+    <div class="s rise" style="--i:2"><b>Einmaischen</b><p>Mahlen, dann mit Wasser, Enzymen und Nährstoffen mischen. Stärke wird zu <b>Glucose</b> abgebaut.</p></div>
+    <div class="s rise" style="--i:3"><b>Gärung</b><p>Hefe wandelt Zucker unter Luftabschluss um:</p><div class="eq">C₆H₁₂O₆<br>→ 2 C₂H₅OH<br>+ 2 CO₂</div>
+      <i class="bub" style="left:24px;animation-delay:0s"></i><i class="bub" style="left:60px;animation-delay:.9s"></i><i class="bub" style="left:96px;animation-delay:1.7s"></i><i class="bub" style="left:132px;animation-delay:.4s"></i></div>
+    <div class="s rise" style="--i:4"><b>Destillieren</b><p>Alkohol wird abgetrennt und entwässert (über 99 %). Rückstand: Schlempe, ein Futtermittel.</p></div>
+    <div class="s rise" style="--i:5"><b>Beimischen</b><p>E10 enthält bis zu 10 % Ethanol, E5 bis zu 5 %.</p></div>
+  </div>
+  <div class="mini">
+    <div class="rise" style="--i:6"><b>104 vs. 95</b>Oktanzahl Ethanol gegenüber Super</div>
+    <div class="rise" style="--i:6"><b>29,3 vs. 43,5</b>Heizwert in MJ/kg: Ethanol gegenüber Benzin</div>
+    <div class="rise" style="--i:7"><b>1 l = 0,66 l</b>1 l Ethanol ersetzt rund 0,66 l Benzin</div>
+    <div class="rise" style="--i:7"><b>25–30 %</b>Mehrverbrauch bei hohem Ethanolanteil</div>
+  </div>
+  <div class="callout rise" style="--i:8;margin-top:14px;padding:12px 22px;font-size:21px"><span class="tag">Pro &amp; Contra</span><span>Rohstoffe wachsen nach und sparen CO₂. Aber die Felder konkurrieren mit Nahrung, und Dünger setzt Lachgas frei.</span></div>
+</section>
+
+<!-- 11 VERBRENNUNG -->
+<section class="slide" data-part="4" data-id="verbrennung">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start"><h2 style="margin-bottom:16px">Vollständige Verbrennung</h2><button class="btn" id="again" type="button">Nochmal abspielen</button></div>
+  <div class="burnbox" id="burn">
+    <div class="tokbox" id="reac" aria-label="Edukte"></div>
+    <div class="mid"><svg class="flame" viewBox="0 0 70 96"><path d="M35 4c12 18 26 32 26 56a26 26 0 0 1-52 0c0-14 6-22 14-32 3 8 7 11 11 11-4-14-2-24 1-35z" fill="#F2A93B"/><path d="M35 46c6 9 13 15 13 26a13 13 0 0 1-26 0c0-7 4-11 8-15 2 4 3 5 5 5-2-6-1-11 0-16z" fill="#F6D55C"/></svg></div>
+    <div class="tokbox" id="prod" aria-label="Produkte"></div>
+  </div>
+  <div class="eqn"><span class="a">2 C₈H₁₈</span><span>+</span><span class="o">25 O₂</span><span>→</span><span class="c">16 CO₂</span><span>+</span><span class="w">18 H₂O</span><span class="mute" style="font-size:20px">+ Energie</span></div>
+  <div class="energy">Octan steht stellvertretend für Benzin. Diesel ähnlich: <span class="mono">2 C₁₆H₃₄ + 49 O₂ → 32 CO₂ + 34 H₂O</span> · Energie: <span>chemisch</span>→<span>Wärme</span>→<span>Druck</span>→<span>Kolben</span></div>
+</section>
+
+<!-- CO2 -->
+<section class="slide" data-part="4" data-id="co2">
+  <div class="hd"><span><b class="pn"></b></span><span class="who-h"></span></div>
+  <h2 class="rise" style="margin-bottom:18px">CO₂ und Schadstoffe</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr;gap:36px;align-items:start">
+    <div>
+      <div class="cobar" style="grid-template-columns:110px 1fr"><span class="nm" style="color:var(--benzin)">Benzin</span><div class="tr"><div class="fill" style="width:76%;background:var(--benzin)">≈ 2,3 kg/l</div></div></div>
+      <div class="cobar" style="grid-template-columns:110px 1fr"><span class="nm" style="color:var(--diesel)">Diesel</span><div class="tr"><div class="fill" style="width:89%;background:var(--diesel)">≈ 2,7 kg/l</div></div></div>
+      <p class="rise" style="--i:3;font-size:21px">1 g Kraftstoff ergibt rund <b>3,1 g CO₂</b>, weil Sauerstoff aus der Luft eingebaut wird. Diesel ist dichter und enthält mehr Kohlenstoff.</p>
+      <div class="panel rise" style="--i:4;--pc:var(--p4);margin-top:14px;padding:14px 22px"><span class="tag">Rechenbeispiel</span><p class="mono" style="font-size:21px;margin-top:10px;line-height:1.6">50 km bei 10 l/100 km<br>5 l × 2,28 kg/l ≈ <b style="color:var(--amber);font-size:27px">11 kg CO₂</b></p></div>
+    </div>
+    <div>
+      <div class="pol rise" style="--i:1"><b>CO</b><span>Zu wenig Sauerstoff, unvollständige Verbrennung.</span></div>
+      <div class="pol rise" style="--i:2"><b>HC, Ruß</b><span>Unverbrannte Kohlenwasserstoffe und Rußpartikel.</span></div>
+      <div class="pol rise" style="--i:3"><b>NOₓ</b><span>Bei hohen Temperaturen reagiert Stickstoff aus der Luft.</span></div>
+      <div class="pol rise" style="--i:4"><b>SO₂</b><span>Schwefelreste im Kraftstoff. Darum wird entschwefelt.</span></div>
+      <div class="panel rise" style="--i:5;margin-top:12px;padding:12px 20px"><span class="tag" style="--pc:var(--amber)">Katalysator</span><p class="mono" style="font-size:19px;line-height:1.6;margin-top:8px">CO + HC → CO₂ + H₂O<br>NO + CO → CO₂ + ½ N₂</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 FAZIT -->
+<section class="slide" data-part="0" data-id="fazit">
+  <div class="hd"><span>Fazit</span><span>Vier Merksätze</span></div>
+  <h2 class="rise" style="margin-bottom:18px">Das solltet ihr mitnehmen</h2>
+  <div class="fz">
+    <div class="r rise" style="--i:1;--pc:var(--p1)"><div><small>Teil 1</small><b class="who" data-p="1"></b></div><p>Erdöl ist ein Gemisch. Die <b>fraktionierte Destillation</b> trennt es nach dem Siedepunkt, also nach der Kettenlänge.</p></div>
+    <div class="r rise" style="--i:2;--pc:var(--p2)"><div><small>Teil 2</small><b class="who" data-p="2"></b></div><p><b>Benzin</b> hat kürzere Ketten, <b>Diesel</b> längere. Die <b>Oktanzahl</b> misst die Klopffestigkeit, die Cetanzahl die Zündwilligkeit.</p></div>
+    <div class="r rise" style="--i:3;--pc:var(--p3)"><div><small>Teil 3</small><b class="who" data-p="3"></b></div><p><b>Biodiesel</b> entsteht durch Umesterung von Pflanzenöl, <b>Bioethanol</b> durch Gärung von Zucker. Sie werden beigemischt.</p></div>
+    <div class="r rise" style="--i:4;--pc:var(--p4)"><div><small>Teil 4</small><b class="who" data-p="4"></b></div><p>Kohlenwasserstoff + O₂ → CO₂ + H₂O + Energie. Pro Liter entstehen etwa <b>2,3 kg (Benzin)</b> und <b>2,7 kg (Diesel)</b> CO₂.</p></div>
+  </div>
+  <div class="callout rise" style="--i:5;--pc:var(--amber);margin-top:16px;padding:12px 24px;font-size:22px"><span class="tag" style="--pc:var(--amber)">Frage an euch</span><span>Ist Biosprit wirklich klimaneutral?</span></div>
+</section>
+
+<!-- 16 QUELLEN -->
+<section class="slide" data-part="0" data-id="quellen">
+  <div class="hd"><span>Quellen</span><span>Chemie · Erdöl</span></div>
+  <h2 style="margin-bottom:18px">Quellen</h2>
+  <ul class="src">
+    <li><a href="https://www.lernhelfer.de/schuelerlexikon/chemie-abitur/artikel/rohoeldestillation" target="_blank" rel="noopener">Rohöldestillation, Lernhelfer</a><span>Fraktionen, über 500 Verbindungen</span></li>
+    <li><a href="https://www.spektrum.de/news/sieden-cracken-veredeln/959127" target="_blank" rel="noopener">Sieden, cracken, veredeln, Spektrum</a><span>Kettenlängen, Temperaturgradient, Oktanzahl</span></li>
+    <li><a href="https://www.chemie.de/lexikon/Mitteldestillat.html" target="_blank" rel="noopener">Mitteldestillat, chemie.de</a><span>Siedebereich 180–360 °C</span></li>
+    <li><a href="https://studyflix.de/chemie/fraktionierte-destillation-2475" target="_blank" rel="noopener">Fraktionierte Destillation, Studyflix</a><span>Ablauf, Cracken, Reforming, Entschwefelung</span></li>
+    <li><a href="https://www.seilnacht.com/Lexikon/ser_frak.doc" target="_blank" rel="noopener">Die fraktionierte Destillation von Rohöl, Seilnacht</a><span>Vakuumdestillation</span></li>
+    <li><a href="https://www.allianzdirect.de/kfz-versicherung/kraftstoff-ratgeber/" target="_blank" rel="noopener">Alles rund um Kraftstoffe, Allianz Direct</a><span>Oktanzahl, Cetanzahl</span></li>
+    <li><a href="https://www.allianzdirect.de/kfz-versicherung/biodiesel-ratgeber/" target="_blank" rel="noopener">Biodiesel-Ratgeber, Allianz Direct</a><span>Raps, Umesterung, Nebenprodukte</span></li>
+    <li><a href="https://www.3-n.info/media/4_Downloads/pdf_WssnSrvc_Srvc_Krftstff_BiomotionRapsoel_2009.pdf" target="_blank" rel="noopener">Pflanzenöl und Biodiesel, 3N Kompetenzzentrum</a><span>Heizwerte und Viskosität</span></li>
+    <li><a href="https://www.3-n.info/media/4_Downloads/pdf_WssnSrvc_Srvc_Krftstff_BiomotionBioethanol_2009.pdf" target="_blank" rel="noopener">Bioethanol, 3N Kompetenzzentrum</a><span>Heizwert, Oktanzahl, Gärung</span></li>
+    <li><a href="https://www.derstandard.at/story/1345164831799/wie-der-mais-zu-treibstoff-wird" target="_blank" rel="noopener">Wie der Mais zu Treibstoff wird, Der Standard</a><span>Herstellung von Bioethanol</span></li>
+    <li><a href="https://www.spektrum.de/lexikon/chemie/kraftstoffe/5090" target="_blank" rel="noopener">Kraftstoffe, Lexikon der Chemie</a><span>Katalysator, Cetanzahl</span></li>
+    <li><a href="https://www.futura-sciences.com/de/?p=18983" target="_blank" rel="noopener">CO₂ pro Liter Benzin und Diesel, Futura</a><span>2,28 kg/l und 2,67 kg/l</span></li>
+  </ul>
+  <p class="mute" style="font-size:16px;margin-top:10px">Zahlen sind gerundet. Siedebereiche und Kettenlängen sind Richtwerte.</p>
+</section>
+
+</div>
+</div>
+
+<div class="notes" id="notes" hidden><b id="nwho"></b><span id="ntext"></span></div>
+
+<div class="ov" id="ov" hidden><div class="ovin"></div></div>
+
+<div class="bar" role="navigation" aria-label="Folien">
+  <button class="nav" id="prev" type="button" aria-label="Vorherige Folie">←</button>
+  <div class="segs" id="segs"></div>
+  <span class="ctr" id="ctr"></span>
+  <button class="nav" id="next" type="button" aria-label="Nächste Folie">→</button>
+  <button class="nav" id="notesbtn" type="button">Sprechtext</button>
+  <button class="nav" id="allbtn" type="button">Alle Texte</button>
+  <button class="nav" id="fs" type="button">Präsentieren</button>
+</div>
+
+<script>
+(function(){
+  var PARTS={1:'Teil 1 · Erdöl & Destillation',2:'Teil 2 · Vom Destillat zum Kraftstoff',3:'Teil 3 · Kraftstoffe vom Acker',4:'Teil 4 · Verbrennung'};
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var stage=document.getElementById('stage'), vp=document.getElementById('vp');
+  var names=['Ivaylo','Simon','Halim','Diogo'];
+  try{var s=JSON.parse(localStorage.getItem('kraftstoff-namen-v2')||'null');if(s&&s.length===4)names=s;}catch(e){}
+  var NS='http://www.w3.org/2000/svg';
+  function el(tag,attrs,parent){var n=document.createElementNS(NS,tag);for(var k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+
+  /* Namen */
+  function refreshNames(){
+    [].forEach.call(document.querySelectorAll('.who[data-p]'),function(n){n.textContent=names[+n.dataset.p-1];});
+    slides.forEach(function(sl){var p=+sl.dataset.part;var w=sl.querySelector('.who-h');if(w&&p)w.innerHTML='Vortrag: <span class="who" style="color:var(--pc)">'+esc(names[p-1])+'</span>';});
+  }
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  [].forEach.call(document.querySelectorAll('.nm[data-p]'),function(n){
+    n.textContent=names[+n.dataset.p-1];
+    n.addEventListener('input',function(){names[+n.dataset.p-1]=n.textContent.trim()||('Person '+n.dataset.p);try{localStorage.setItem('kraftstoff-namen-v2',JSON.stringify(names));}catch(e){}refreshNames();});
+    n.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();n.blur();}});
+  });
+  slides.forEach(function(sl,i){
+    var p=+sl.dataset.part;var pn=sl.querySelector('.pn');if(pn&&p)pn.textContent=PARTS[p];
+    var pg=document.createElement('div');pg.className='pg';if(sl.dataset.id!=='titel'){pg.textContent=(i+1)+' / '+slides.length;sl.appendChild(pg);}
+  });
+  refreshNames();
+
+  /* Skalierung */
+  function fit(){var w=vp.clientWidth,h=vp.clientHeight;stage.style.setProperty('--s',Math.min(w/1280,h/720));}
+  window.addEventListener('resize',fit);fit();
+  if(window.ResizeObserver)new ResizeObserver(fit).observe(vp);
+
+  /* Siedepunkt-Zeilen */
+  var BP=[{n:1,nm:'Methan',f:'CH₄',v:-162,c:'#86D8EE'},{n:4,nm:'Butan',f:'C₄H₁₀',v:-1,c:'#86D8EE'},{n:8,nm:'Octan',f:'C₈H₁₈  ≈ Benzin',v:126,c:'#F6D55C'},{n:16,nm:'Hexadecan',f:'C₁₆H₃₄  ≈ Diesel',v:287,c:'#E2603A'}];
+  var MIN=-200,MAX=300,RNG=MAX-MIN;
+  var rows=document.getElementById('bprows');
+  BP.forEach(function(d,i){
+    var pts=[];for(var k=0;k<d.n;k++)pts.push((10+k*13)+','+(k%2?24:10));
+    var chain=d.n>1?'<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+d.c+'" stroke-width="3" stroke-linejoin="round"/>':'';
+    var dots=pts.map(function(p){var a=p.split(',');return '<circle cx="'+a[0]+'" cy="'+a[1]+'" r="5" fill="'+d.c+'"/>';}).join('');
+    var z=(0-MIN)/RNG*100,left=d.v<0?(d.v-MIN)/RNG*100:z,wd=Math.abs(d.v)/RNG*100;
+    var row=document.createElement('div');row.className='bprow rise';row.style.setProperty('--i',i);
+    row.innerHTML='<div class="nm">'+d.nm+'<small>'+d.f+'</small></div><svg viewBox="0 0 230 34" width="230" height="34" aria-hidden="true">'+chain+dots+'</svg><div class="track"><div class="zero" style="left:'+z+'%"></div><div class="bar" style="left:'+left+'%;width:'+wd+'%;background:'+d.c+';--o:'+(d.v<0?'right':'left')+';--i:'+i+'"></div></div><div class="bpval" style="color:'+d.c+'">'+String(d.v).replace('-','−')+' °C</div>';
+    rows.appendChild(row);
+  });
+  var tk=document.getElementById('bpticks');[-200,-100,0,100,200,300].forEach(function(v){var t=document.createElement('i');t.style.left=((v-MIN)/RNG*100)+'%';t.textContent=String(v).replace('-','−')+' °C';tk.appendChild(t);});
+
+  /* Kolonne */
+  var FR=[
+   {k:'gas',n:'Raffineriegas',c:'C₁–C₄',t:'bis ca. 40 °C',y:30,col:'#86D8EE',use:'Heizgas und Flüssiggas (Propan, Butan). Aus C₃ und C₄ lassen sich auch Kunststoffe herstellen.'},
+   {k:'benzin',n:'Benzin (Naphtha)',c:'C₅–C₁₁',t:'ca. 40–180 °C',y:130,col:'#F6D55C',use:'Ausgangsstoff für Ottokraftstoff. Wird durch Reforming und Entschwefeln zu Benzin verbessert.'},
+   {k:'kero',n:'Kerosin',c:'C₁₀–C₁₆',t:'ca. 180–250 °C',y:225,col:'#F29E4C',use:'Treibstoff für Flugzeuge.'},
+   {k:'diesel',n:'Diesel, leichtes Heizöl',c:'C₁₂–C₂₀',t:'ca. 250–360 °C',y:320,col:'#E2603A',use:'Dieselkraftstoff und leichtes Heizöl (zusammen Mitteldestillat, 180–360 °C).'},
+   {k:'rueck',n:'Rückstand',c:'C₂₀ und länger',t:'über 360 °C',y:495,col:'#C97A6C',use:'Schweres Heizöl oder weiter in der Vakuumdestillation: bei niedrigem Druck siedet es schon tiefer und zerfällt nicht. Daraus Bitumen, Paraffin, Schmieröl.'}
+  ];
+  var frs=document.getElementById('frs'),bubs=document.getElementById('bubs'),det=document.getElementById('fdet');
+  function pick(k){
+    FR.forEach(function(f){f.g.classList.toggle('sel',f.k===k);});
+    var f=FR.filter(function(x){return x.k===k;})[0];
+    det.style.setProperty('--c',f.col);
+    det.innerHTML='<h3>'+f.n+'</h3><dl><dt>Kettenlänge</dt><dd>'+f.c+'</dd><dt>Siedebereich</dt><dd>'+f.t+'</dd><dt>Verwendung</dt><dd>'+f.use+'</dd></dl>';
+  }
+  FR.forEach(function(f,i){
+    el('line',{x1:300,y1:f.y,x2:344,y2:f.y,stroke:f.col,'stroke-width':4},frs);
+    var g=el('g',{'class':'fr',tabindex:0,role:'button','aria-label':f.n},frs);f.g=g;
+    el('rect',{'class':'hit',x:346,y:f.y-30,width:290,height:60,rx:8},g);
+    var t=el('text',{x:356,y:f.y-3,'font-family':'IBM Plex Sans','font-size':21,'font-weight':600,fill:f.col},g);t.textContent=f.n;
+    var t2=el('text',{x:356,y:f.y+20,'font-family':'IBM Plex Mono','font-size':14,fill:'#9BB2BE'},g);t2.textContent=f.c+' · '+f.t;
+    g.addEventListener('mouseenter',function(){pick(f.k);});g.addEventListener('click',function(){pick(f.k);});g.addEventListener('focus',function(){pick(f.k);});
+    if(f.k==='rueck'){for(var j=0;j<2;j++){var dr=el('circle',{cx:225+j*18,cy:497,r:4,fill:f.col,'class':'drip'},bubs);dr.style.animationDelay=(j*1.1)+'s';}return;}
+    for(var j=0;j<6;j++){
+      var d=478-f.y;var c=el('circle',{cx:168+((j*53+i*29)%110),cy:478,r:3.5+((j+i)%3),fill:f.col,'class':'b'},bubs);
+      c.style.setProperty('--d',d+'px');c.style.setProperty('--t',(2.6+d/160)+'s');c.style.setProperty('--dl',(j*0.55+i*0.15)+'s');
+    }
+    for(var m=0;m<2;m++){var o=el('circle',{cx:302,cy:f.y,r:4,fill:f.col,'class':'xo'},bubs);o.style.setProperty('--dl',(m*1.2)+'s');}
+  });
+  pick('benzin');
+
+  /* Verbrennung */
+  (function(){
+    var r=document.getElementById('reac'),p=document.getElementById('prod');
+    function add(box,cls,n,txt,rt){for(var i=0;i<n;i++){var d=document.createElement('div');d.className='tk '+cls+' '+(rt?'rt':'pt');d.style.setProperty('--i',i);d.textContent=txt||'';box.appendChild(d);}}
+    add(r,'f',2,'C₈H₁₈',true);add(r,'o',25,'',true);add(p,'c',16,'',false);add(p,'w',18,'',false);
+  })();
+  var burn=document.getElementById('burn'),bt;
+  function runBurn(){burn.classList.remove('burn');clearTimeout(bt);bt=setTimeout(function(){burn.classList.add('burn');},1100);}
+  document.getElementById('again').addEventListener('click',runBurn);
+
+  /* Sprechtexte */
+  var NOTES={"titel": [1, "Hallo zusammen. Wir sind {1}, {2}, {3} und {4}. Unser Thema: Woher kommt eigentlich unser Kraftstoff, also Benzin und Diesel, und was passiert, wenn er im Motor verbrennt? Wir zeigen euch erst, wie man aus Erdöl Benzin und Diesel gewinnt. Dann klären wir, was Oktan eigentlich bedeutet. Danach geht es um Kraftstoffe aus Pflanzen, und zum Schluss um die Verbrennung."], "siede": [1, "Erdöl ist kein einzelner Stoff, sondern ein Gemisch aus über 500 verschiedenen Kohlenwasserstoffen. Das sind Moleküle aus Kohlenstoff und Wasserstoff, meistens als Ketten. Wichtig ist: Die Ketten sind unterschiedlich lang, und je länger die Kette, desto höher der Siedepunkt. Methan siedet bei minus 162 Grad, Butan bei etwa minus 1 Grad, Octan bei 126 Grad und Hexadecan bei 287 Grad. Der Grund: Zwischen langen Molekülen wirken stärkere Anziehungskräfte, also braucht man mehr Energie zum Verdampfen. Genau diesen Unterschied nutzt die Raffinerie, um das Gemisch zu trennen. Octan entspricht ungefähr dem Benzin, Hexadecan ungefähr dem Diesel."], "kolonne": [1, "So läuft die fraktionierte Destillation ab. Erstens: Das Rohöl wird in einem Ofen auf etwa 350 Grad erhitzt und verdampft größtenteils. Zweitens: Der Dampf steigt im Destillationsturm durch die Böden nach oben. Unten ist es etwa 400 Grad heiß, ganz oben nur etwa 20 Grad. Drittens: Jeder Stoff kondensiert dort, wo es kälter ist als sein Siedebereich, und wird seitlich abgezogen. Ganz oben sammeln sich die Gase, darunter das Benzin, dann Kerosin, dann Diesel und leichtes Heizöl. Unten bleibt der Rückstand. Der wird in einer Vakuumdestillation weiter getrennt, weil viele Stoffe bei 350 Grad zerfallen würden. Wenn ich auf eine Fraktion klicke, seht ihr Kettenlänge, Siedebereich und Verwendung."], "vergleich": [2, "Benzin und Diesel kommen aus unterschiedlichen Fraktionen. Benzin hat kürzere Ketten, etwa C5 bis C11, Diesel längere, etwa C12 bis C20. Als Modell nehmen wir Octan für Benzin und Hexadecan für Diesel. Diesel ist dichter, etwa 0,85 Kilogramm pro Liter, Benzin etwa 0,74. Der wichtigste Unterschied ist die Zündung: Beim Benziner zündet die Zündkerze, beim Diesel zündet der Kraftstoff durch die Verdichtung von selbst. Deshalb gibt es zwei Kennzahlen: die Oktanzahl beim Benzin und die Cetanzahl beim Diesel. Benzin soll sich nicht von selbst entzünden, Diesel soll es. Was die Oktanzahl genau bedeutet, schauen wir uns jetzt an."], "oktan": [2, "Octan und Oktanzahl sind nicht dasselbe. Octan ist ein Molekül mit acht Kohlenstoffatomen, C8H18. Die Oktanzahl ist eine Skala, die sagt, wie klopffest ein Benzin ist. Also: Wie stark kann man es verdichten, bevor es von selbst zündet? Als Vergleich dienen zwei Stoffe. n-Heptan, eine gerade Kette, zündet sehr früh und bekommt die Zahl 0. iso-Oktan, ein verzweigtes Molekül, ist sehr klopffest und bekommt 100. Super mit 95 verhält sich wie ein Gemisch aus 95 Prozent iso-Oktan und 5 Prozent n-Heptan. Super Plus hat mindestens 98, und Ethanol liegt sogar bei etwa 104. Merkregel: Verzweigte Moleküle sind klopffester als gerade Ketten. Deshalb baut die Raffinerie beim Reforming gerade Ketten zu verzweigten um. Beim Diesel ist es umgekehrt: Dort misst die Cetanzahl, wie leicht er zündet."], "biodiesel": [3, "Jetzt zu Kraftstoffen aus nachwachsenden Rohstoffen. Biodiesel wird in Deutschland fast nur aus Raps hergestellt. Die Rapssamen enthalten etwa 40 Prozent Öl. Das wird gepresst, übrig bleibt der Rapskuchen, der als Futtermittel dient. Reines Rapsöl ist für einen normalen Dieselmotor zu zähflüssig. Darum macht man eine Umesterung: Das Rapsöl ist ein Triglycerid, also Glycerin mit drei Fettsäuren. Es reagiert mit Methanol und einem Katalysator, zum Beispiel Natriumhydroxid. Dabei lösen sich die drei Fettsäuren vom Glycerin und bekommen eine Methylgruppe. Es entstehen drei Moleküle Rapsölmethylester, kurz RME, das ist der Biodiesel, und Glycerin als Nebenprodukt. Die Viskosität sinkt von etwa 98 auf 6 bis 8, und der Heizwert ist mit 32,7 Megajoule pro Liter nur etwas niedriger als bei Diesel mit etwa 35,2."], "bioethanol": [3, "Bioethanol ersetzt einen Teil des Benzins. Man startet mit Getreide, Mais oder Zuckerrüben. Die werden gemahlen und mit Wasser und Enzymen gemischt, dabei wird Stärke zu Glucose abgebaut. Dann kommt die Gärung: Hefe wandelt Traubenzucker unter Luftabschluss in Ethanol und CO2 um, also C6H12O6 wird zu 2 C2H5OH plus 2 CO2. Danach wird destilliert und entwässert, bis der Alkohol zu über 99 Prozent rein ist. Übrig bleibt die Schlempe, die als Futtermittel dient. Ethanol hat eine höhere Oktanzahl als Super, etwa 104, aber weniger Energie: 29,3 statt 43,5 Megajoule pro Kilogramm. Darum braucht man bei hohem Ethanolanteil mehr Kraftstoff. Super E10 enthält bis zu 10 Prozent Ethanol. Dafür spricht: Die Rohstoffe wachsen nach, und je nach Rohstoff werden etwa 30 bis 70 Prozent weniger CO2 ausgestoßen. Dagegen: Die Felder konkurrieren mit Nahrungsmitteln, und Dünger setzt Lachgas frei. Darum forscht man auch an Ethanol aus Stroh und Holz."], "verbrennung": [4, "Und jetzt: Was passiert beim Verbrennen? Wir nehmen Octan als Modell für Benzin. Octan reagiert mit Sauerstoff aus der Luft zu Kohlenstoffdioxid und Wasser, und dabei wird Energie frei. Die Gleichung lautet: 2 C8H18 plus 25 O2 ergibt 16 CO2 plus 18 H2O. In der Animation seht ihr: Aus 2 Octan-Molekülen und 25 Sauerstoff-Molekülen werden 16 CO2- und 18 Wasser-Moleküle. Beim Diesel läuft es genauso, zum Beispiel mit Hexadecan: 2 C16H34 plus 49 O2 ergibt 32 CO2 plus 34 H2O. Die chemische Energie wird zu Wärme, die Wärme erzeugt Druck, und der Druck bewegt den Kolben. Mit dem Knopf könnt ihr die Animation nochmal abspielen."], "co2": [4, "Das Entscheidende ist das CO2. Aus einem Gramm Kraftstoff entstehen etwa 3,1 Gramm CO2, weil der Sauerstoff aus der Luft mit eingebaut wird. Pro Liter sind das etwa 2,3 Kilogramm bei Benzin und 2,7 Kilogramm bei Diesel, denn Diesel ist dichter und hat mehr Kohlenstoff. Ein Beispiel: 50 Kilometer bei 10 Litern auf 100 Kilometer sind 5 Liter Benzin und rund 11 Kilogramm CO2. Dieselautos brauchen allerdings weniger Liter pro Kilometer, und die Herstellung des Kraftstoffs kommt noch dazu. In echten Motoren verbrennt nicht alles vollständig. Es entsteht Kohlenmonoxid bei Sauerstoffmangel, Ruß und unverbrannte Kohlenwasserstoffe, Stickoxide bei hohen Temperaturen und Schwefeldioxid aus Schwefelresten. Der Katalysator wandelt CO und Kohlenwasserstoffe in CO2 und Wasser um, und NO zusammen mit CO in CO2 und Stickstoff."], "fazit": [0, "Zum Schluss unsere vier Merksätze. {1}: Erdöl ist ein Gemisch, und die fraktionierte Destillation trennt es nach dem Siedepunkt. {2}: Benzin hat kürzere Ketten, Diesel längere, und die Oktanzahl misst die Klopffestigkeit. {3}: Biodiesel entsteht aus Pflanzenöl durch Umesterung, Bioethanol durch Gärung. {4}: Bei der Verbrennung entsteht CO2 und Wasser, pro Liter etwa 2,3 Kilogramm CO2 bei Benzin und 2,7 bei Diesel. Und eine Frage an euch: Ist Biosprit wirklich klimaneutral?"]};
+  var PCOL={0:'#F2A93B',1:'#86D8EE',2:'#F6D55C',3:'#6FD0A0',4:'#F29E4C'};
+  function nt(t){return t.replace(/\{(\d)\}/g,function(m,d){return names[+d-1];});}
+  var notesEl=document.getElementById('notes');
+  function updNotes(){
+    var id=slides[cur].dataset.id,n=NOTES[id];
+    if(!n){notesEl.hidden=true;return;}
+    document.getElementById('nwho').textContent=n[0]?'Sprecher: '+names[n[0]-1]:'Alle';
+    document.getElementById('ntext').textContent=nt(n[1]);
+    if(notesOn)notesEl.hidden=false;
+  }
+  var notesOn=false;
+  function toggleNotes(){if(pres)return;notesOn=!notesOn;notesEl.hidden=!notesOn||!NOTES[slides[cur].dataset.id];document.getElementById('notesbtn').style.borderColor=notesOn?'var(--amber)':'';setTimeout(fit,30);}
+  document.getElementById('notesbtn').addEventListener('click',toggleNotes);
+  var ov=document.getElementById('ov');
+  function allText(){
+    var out=[];[1,2,3,4,0].forEach(function(p){
+      out.push((p?'Teil '+p+' · '+names[p-1]:'Alle').toUpperCase());
+      slides.forEach(function(sl,i){var n=NOTES[sl.dataset.id];if(n&&n[0]===p)out.push('Folie '+(i+1)+'\n'+nt(n[1]));});
+      out.push('');
+    });
+    return out.join('\n\n');
+  }
+  function openAll(){
+    var h='<h1>Sprechtexte</h1><div class="tools"><button class="nav" id="ovclose" type="button">Schließen</button><button class="nav" id="ovcopy" type="button">Alles kopieren</button></div><div id="ovmsg" class="mute"></div>';
+    [1,2,3,4,0].forEach(function(p){
+      var items=slides.map(function(sl,i){return [sl,i];}).filter(function(a){var n=NOTES[a[0].dataset.id];return n&&n[0]===p;});
+      if(!items.length)return;
+      h+='<h3 style="--c:'+PCOL[p]+'">'+(p?'Teil '+p+' · '+esc(names[p-1]):'Alle zusammen')+'</h3>';
+      items.forEach(function(a){h+='<h4>Folie '+(a[1]+1)+'</h4><p>'+esc(nt(NOTES[a[0].dataset.id][1]))+'</p>';});
+    });
+    ov.firstChild.innerHTML=h;ov.hidden=false;ov.scrollTop=0;
+    document.getElementById('ovclose').addEventListener('click',closeAll);
+    document.getElementById('ovcopy').addEventListener('click',function(){
+      var msg=document.getElementById('ovmsg'),t=allText();
+      try{navigator.clipboard.writeText(t).then(function(){msg.textContent='Kopiert.';},function(){msg.textContent='Kopieren nicht möglich. Text einfach markieren.';});}catch(e){msg.textContent='Kopieren nicht möglich. Text einfach markieren.';}
+    });
+  }
+  function closeAll(){ov.hidden=true;}
+  document.getElementById('allbtn').addEventListener('click',openAll);
+  /* Blasen im Gärbehälter laufen per CSS. Navigation: */
+  var cur=0,segs=document.getElementById('segs'),ctr=document.getElementById('ctr'),segEls=[];
+  slides.forEach(function(sl,i){var b=document.createElement('button');b.type='button';b.className='seg';b.dataset.part=sl.dataset.part;b.setAttribute('aria-label','Folie '+(i+1));b.addEventListener('click',function(){go(i);});segs.appendChild(b);segEls.push(b);});
+  function go(i){
+    i=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i);});
+    segEls.forEach(function(b,k){b.classList.toggle('on',k===i);});
+    cur=i;ctr.textContent=(i+1)+' / '+slides.length;updNotes();
+    if(slides[i].dataset.id==='verbrennung')runBurn();
+    try{history.replaceState(null,'','#folie-'+(i+1));}catch(e){try{location.hash='folie-'+(i+1);}catch(e2){}}
+  }
+  document.getElementById('prev').addEventListener('click',function(){go(cur-1);});
+  document.getElementById('next').addEventListener('click',function(){go(cur+1);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&(e.target.isContentEditable))return;if(!ov.hidden){if(e.key==='Escape')closeAll();return;}
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'&&e.target===document.body){e.preventDefault();go(cur+1);}
+    else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();go(cur-1);}
+    else if(k==='Home'){go(0);}else if(k==='End'){go(slides.length-1);}
+    else if(k==='f'||k==='F'||k==='p'||k==='P'){if(pres)exitPres();else enterPres();}else if(k==='n'||k==='N'){toggleNotes();}else if(k==='Escape'){if(pres)exitPres();else closeAll();}
+  });
+  var sx=null;
+  vp.addEventListener('pointerdown',function(e){sx=e.clientX;});
+  vp.addEventListener('pointerup',function(e){if(sx===null)return;var dx=e.clientX-sx;sx=null;if(Math.abs(dx)>70)go(cur+(dx<0?1:-1));});
+  function toggleFs(){try{if(document.fullscreenElement){document.exitFullscreen();}else{var p=document.documentElement.requestFullscreen();if(p&&p.catch)p.catch(function(){});}}catch(e){}}
+  var pres=false,hintT;
+  function setPres(on){pres=on;document.body.classList.toggle('pres',on);var h=document.getElementById('hint');
+    if(on){notesEl.hidden=true;h.classList.add('show');clearTimeout(hintT);hintT=setTimeout(function(){h.classList.remove('show');},3500);}else{h.classList.remove('show');updNotes();}
+    setTimeout(fit,40);}
+  function enterPres(){setPres(true);try{var p=document.documentElement.requestFullscreen();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+  function exitPres(){setPres(false);try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}}
+  document.getElementById('fs').addEventListener('click',enterPres);
+  document.getElementById('zl').addEventListener('click',function(){go(cur-1);});
+  document.getElementById('zr').addEventListener('click',function(){go(cur+1);});
+  document.addEventListener('fullscreenchange',function(){if(!document.fullscreenElement&&pres)setPres(false);setTimeout(fit,50);});
+  var m=/^#folie-(\d+)$/.exec(location.hash||'');
+  window.addEventListener('hashchange',function(){var mm=/^#folie-(\d+)$/.exec(location.hash||'');if(mm&&+mm[1]-1!==cur)go(+mm[1]-1);});
+  go(m?+m[1]-1:0);
+})();
+</script>
+
+</body></html>
